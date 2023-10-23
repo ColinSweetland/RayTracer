@@ -1,14 +1,29 @@
+import java.util.ArrayList;
 
 public class RayCaster {
 
+    static ArrayList<Hittable> scene_objects = new ArrayList<Hittable>();
+
     // cast a ray and get the color it sees as a result. Currently hardcode black
     public static Color castRay(Ray r) {
+        for (Hittable h : scene_objects) {
+            if (h.isHitBy(r)) {
+                return Color.RED;
+            }
+        }
+
         Vec3 unit = r.getDirection().toUnit();
         double lerp_amount = 0.5 * (unit.y() + 1.0);
-        return Color.lerpBetween(new Color(1.0, 1.0, 1.0), new Color(0.5, 0.7, 1.0), lerp_amount);
+        return Color.lerpBetween(Color.WHITE, Color.SKYBLUE, lerp_amount);
+    }
+
+    public static void setup_scene() {
+        scene_objects.add(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5));
     }
 
     public static void main(String[] args) {
+
+        setup_scene();
 
         double ideal_aspect_ratio = 16.0 / 9.0;
 
@@ -18,20 +33,21 @@ public class RayCaster {
         // ensure image height is at least one
         image_height = Math.max(image_height, 1);
 
-        // Viewport is a "plane" in front of the camera where we cast our rays from
-        double viewport_height = 2.0;
-        double viewport_width = viewport_height * (double) (image_width / image_height);
-
         // Camera will start at the origin, for now
         // y axis is up, positive x is right, negative z is forward (right hand
         // coordinates)
         Vec3 camera_origin = new Vec3(0.0, 0.0, 0.0);
 
-        // distance between camera origin and viewport_width (in negative z direction)
-        Vec3 focal_length = new Vec3(0.0, 0.0, -1.0);
+        // distance between camera origin and viewport (in negative z direction)
+        double focal_length = 1.0;
+
+        // Viewport is a "plane" in front of the camera where we cast our rays from
+        double viewport_height = 2.0;
+        double viewport_width = viewport_height * (double) image_width / (double) image_height;
 
         // Vector pointing from upper left of viewport to upper left.
         Vec3 viewport_lr = new Vec3(viewport_width, 0.0, 0.0);
+
         // Vector pointing from upper left of viewport to bottom left.
         Vec3 viewport_ud = new Vec3(0.0, -viewport_height, 0.0);
 
@@ -40,7 +56,7 @@ public class RayCaster {
         Vec3 pixel_delta_ud = Vec3.scalarDiv(image_height, viewport_ud);
 
         // calculate viewport upper left
-        Vec3 viewport_upper_left = Vec3.add(camera_origin, focal_length);
+        Vec3 viewport_upper_left = Vec3.sub(camera_origin, new Vec3(0.0, 0.0, focal_length));
         viewport_upper_left = Vec3.sub(viewport_upper_left, Vec3.scalarDiv(2.0, viewport_lr));
         viewport_upper_left = Vec3.sub(viewport_upper_left, Vec3.scalarDiv(2.0, viewport_ud));
 
