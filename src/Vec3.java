@@ -27,8 +27,13 @@ public class Vec3 {
         return e[2];
     }
 
+    // used for some calculations
+    public double lenSquared() {
+        return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+    }
+
     public double len() {
-        return Math.sqrt(e[0] * e[0] + e[1] * e[1] + e[2] * e[2]);
+        return Math.sqrt(lenSquared());
     }
 
     public static Vec3 scalarMul(final double s, final Vec3 v) {

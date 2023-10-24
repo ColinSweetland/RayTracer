@@ -6,9 +6,14 @@ public class RayCaster {
 
     // cast a ray and get the color it sees as a result. Currently hardcode black
     public static Color castRay(Ray r) {
-        for (Hittable h : scene_objects) {
-            if (h.isHitBy(r)) {
-                return Color.RED;
+        for (Hittable obj : scene_objects) {
+            HitInfo h = obj.isHitBy(r);
+            if (h != null) {
+                double red = 0.5 * (h.getHitNormal().x() + 1.0);
+                double green = 0.5 * (h.getHitNormal().y() + 1.0);
+                double blue = 0.5 * (h.getHitNormal().z() + 1.0);
+
+                return new Color(red, green, blue);
             }
         }
 
