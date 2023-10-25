@@ -6,24 +6,35 @@ public class RayCaster {
 
     // cast a ray and get the color it sees as a result. Currently hardcode black
     public static Color castRay(Ray r) {
+        HitInfo closest_hit = null;
+
         for (Hittable obj : scene_objects) {
             HitInfo h = obj.isHitBy(r);
             if (h != null) {
-                double red = 0.5 * (h.getHitNormal().x() + 1.0);
-                double green = 0.5 * (h.getHitNormal().y() + 1.0);
-                double blue = 0.5 * (h.getHitNormal().z() + 1.0);
-
-                return new Color(red, green, blue);
+                if (closest_hit == null || h.getHitPointAlongRay() < closest_hit.getHitPointAlongRay()) {
+                    closest_hit = h;
+                }
             }
         }
 
-        Vec3 unit = r.getDirection().toUnit();
-        double lerp_amount = 0.5 * (unit.y() + 1.0);
-        return Color.lerpBetween(Color.WHITE, Color.SKYBLUE, lerp_amount);
+        // ray didn't hit an object, return sky color
+        if (closest_hit == null) {
+            Vec3 unit = r.getDirection().toUnit();
+            double lerp_amount = 0.5 * (unit.y() + 1.0);
+            return Color.lerpBetween(Color.WHITE, Color.SKYBLUE, lerp_amount);
+        } else {
+            double red = 0.5 * (closest_hit.getHitNormal().x() + 1.0);
+            double green = 0.5 * (closest_hit.getHitNormal().y() + 1.0);
+            double blue = 0.5 * (closest_hit.getHitNormal().z() + 1.0);
+
+            return new Color(red, green, blue);
+        }
     }
 
     public static void setup_scene() {
         scene_objects.add(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5));
+        scene_objects.add(new Sphere(new Vec3(0.0, -100.5, -1), 100.0));
+
     }
 
     public static void main(String[] args) {
