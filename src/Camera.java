@@ -1,13 +1,20 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Camera {
 
     private double ideal_aspect_ratio = 16.0 / 9.0;
     private int image_width = 400;
     private Vec3 origin = new Vec3(0.0, 0.0, 0.0);
+    private int samples_per_pixel = 100;
+    private static Random rand = new Random();
 
     // distance between camera origin and viewport (in negative z direction)
     double focal_length = 1.0;
+
+    private Vec3 pixel_00_pos;
+    private Vec3 pixel_lr_delta;
+    private Vec3 pixel_ud_delta;
 
     public Camera() {
         return;
@@ -19,6 +26,10 @@ public class Camera {
 
     public void setImageWidth(int w) {
         image_width = w;
+    }
+
+    public void setSamplesPerPixel(int spp) {
+        samples_per_pixel = spp;
     }
 
     public void setFocalLength(double fl) {
@@ -49,8 +60,8 @@ public class Camera {
         Vec3 viewport_ud = new Vec3(0.0, -viewport_height, 0.0);
 
         // distance between pixels in viewport
-        Vec3 pixel_delta_lr = Vec3.scalarDiv(image_width, viewport_lr);
-        Vec3 pixel_delta_ud = Vec3.scalarDiv(image_height, viewport_ud);
+        pixel_lr_delta = Vec3.scalarDiv(image_width, viewport_lr);
+        pixel_ud_delta = Vec3.scalarDiv(image_height, viewport_ud);
 
         // calculate viewport upper left
         Vec3 viewport_upper_left = Vec3.sub(origin, new Vec3(0.0, 0.0, focal_length));
@@ -58,8 +69,8 @@ public class Camera {
         viewport_upper_left = Vec3.sub(viewport_upper_left, Vec3.scalarDiv(2.0, viewport_ud));
 
         // center of first pixel is offset half of each pixel delta from upper left
-        Vec3 pixel_00_pos = Vec3.add(viewport_upper_left, Vec3.scalarDiv(2.0, pixel_delta_lr));
-        pixel_00_pos = Vec3.add(pixel_00_pos, Vec3.scalarDiv(2.0, pixel_delta_ud));
+        pixel_00_pos = Vec3.add(viewport_upper_left, Vec3.scalarDiv(2.0, pixel_lr_delta));
+        pixel_00_pos = Vec3.add(pixel_00_pos, Vec3.scalarDiv(2.0, pixel_ud_delta));
 
         // PPM magic number
         System.out.println("P3");
@@ -74,17 +85,36 @@ public class Camera {
             System.err.format("\rRendering %d/%d", y + 1, image_height);
 
             for (int x = 0; x < image_width; x++) {
-                // shift to current pixel position
-                Vec3 pixel_pos = Vec3.add(pixel_00_pos, Vec3.scalarMul(x, pixel_delta_lr));
-                pixel_pos = Vec3.add(pixel_pos, Vec3.scalarMul(y, pixel_delta_ud));
-
-                Ray curr_ray = new Ray(origin, Vec3.sub(pixel_pos, origin));
-
-                Color pixeColor = castRay(curr_ray, scene_objects);
-                Color.write(pixeColor);
+                Color pixel_color = new Color(0, 0, 0);
+                for (int s = 0; s < samples_per_pixel; s++) {
+                    Ray curr_ray = makeRay(x, y);
+                    pixel_color = Vec3.add(pixel_color, castRay(curr_ray, scene_objects)).toColor();
+                }
+                pixel_color = Vec3.scalarDiv(samples_per_pixel, pixel_color).toColor();
+                Color.write(pixel_color);
             }
         }
         System.err.println();
+    }
+
+    // Returns a random point in the square surrounding a pixel at the origin.
+    private Vec3 pixelSampleSquare() {
+        double px = -0.5 + rand.nextDouble();
+        double py = -0.5 + rand.nextDouble();
+        return Vec3.add(Vec3.scalarMul(px, pixel_lr_delta), Vec3.scalarMul(py, pixel_ud_delta));
+    }
+
+    // create a ray from a random point in unit square at camera, to the pixel pos
+    private Ray makeRay(int pixel_x, int pixel_y) {
+        // Get a randomly sampled camera ray for the pixel at location i,j.
+
+        Vec3 pixel_center = pixel_00_pos;
+        pixel_center = Vec3.add(pixel_center, Vec3.scalarMul(pixel_x, pixel_lr_delta));
+        pixel_center = Vec3.add(pixel_center, Vec3.scalarMul(pixel_y, pixel_ud_delta));
+
+        Vec3 pixel_sample = Vec3.add(pixel_center, pixelSampleSquare());
+
+        return new Ray(origin, Vec3.sub(pixel_sample, origin));
     }
 
     // cast a ray and get the color it sees as a result.

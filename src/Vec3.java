@@ -74,4 +74,8 @@ public class Vec3 {
     public String toString() {
         return String.format("Vec3( %f, %f, %f )\n", e[0], e[1], e[2]);
     }
+
+    public Color toColor() {
+        return new Color(this);
+    }
 }
