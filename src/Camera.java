@@ -8,6 +8,7 @@ public class Camera {
     private Vec3 origin = new Vec3(0.0, 0.0, 0.0);
     private int samples_per_pixel = 100;
     private static Random rand = new Random();
+    private static int MAX_BOUNCES = 50;
 
     // distance between camera origin and viewport (in negative z direction)
     double focal_length = 1.0;
@@ -88,7 +89,7 @@ public class Camera {
                 Color pixel_color = new Color(0, 0, 0);
                 for (int s = 0; s < samples_per_pixel; s++) {
                     Ray curr_ray = makeRay(x, y);
-                    pixel_color = Vec3.add(pixel_color, castRay(curr_ray, scene_objects)).toColor();
+                    pixel_color = Vec3.add(pixel_color, castRay(curr_ray, scene_objects, 0)).toColor();
                 }
                 pixel_color = Vec3.scalarDiv(samples_per_pixel, pixel_color).toColor();
                 Color.write(pixel_color);
@@ -118,15 +119,17 @@ public class Camera {
     }
 
     // cast a ray and get the color it sees as a result.
-    private Color castRay(Ray r, ArrayList<Hittable> scene_objects) {
-        HitInfo closest_hit = null;
+    private Color castRay(Ray r, ArrayList<Hittable> scene_objects, int bounce_count) {
 
+        if (bounce_count > MAX_BOUNCES)
+            return new Color(0, 0, 0);
+
+        HitInfo closest_hit = null;
         for (Hittable obj : scene_objects) {
             HitInfo h = obj.isHitBy(r);
             if (h != null) {
-                if (closest_hit == null || h.getHitPointAlongRay() < closest_hit.getHitPointAlongRay()) {
+                if (closest_hit == null || h.getHitPointAlongRay() < closest_hit.getHitPointAlongRay())
                     closest_hit = h;
-                }
             }
         }
 
@@ -136,11 +139,10 @@ public class Camera {
             double lerp_amount = 0.5 * (unit.y() + 1.0);
             return Color.lerpBetween(Color.WHITE, Color.SKYBLUE, lerp_amount);
         } else {
-            double red = 0.5 * (closest_hit.getHitNormal().x() + 1.0);
-            double green = 0.5 * (closest_hit.getHitNormal().y() + 1.0);
-            double blue = 0.5 * (closest_hit.getHitNormal().z() + 1.0);
-
-            return new Color(red, green, blue);
+            Vec3 bounce_dir = Vec3.add(closest_hit.getHitNormal(), Vec3.randomUnitVector());
+            Vec3 collision_point = r.at(closest_hit.getHitPointAlongRay());
+            Color bounced_ray = castRay(new Ray(collision_point, bounce_dir), scene_objects, bounce_count + 1);
+            return Vec3.scalarMul(0.5, bounced_ray).toColor();
         }
     }
 }

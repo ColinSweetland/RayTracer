@@ -1,10 +1,13 @@
 
 import java.lang.Math;
+import java.util.Random;
 
 public class Vec3 {
 
     // the elements of our Vec3 e.g. x,y,z or r,g,b.
     private double[] e = { 0, 0, 0 };
+
+    private static Random rand = new Random();
 
     public Vec3() {
     }
@@ -65,6 +68,41 @@ public class Vec3 {
 
     public static double dot(final Vec3 lhs, final Vec3 rhs) {
         return lhs.e[0] * rhs.e[0] + lhs.e[1] * rhs.e[1] + lhs.e[2] * rhs.e[2];
+    }
+
+    public static Vec3 random() {
+        return new Vec3(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
+    }
+
+    public static Vec3 random(double lower_bound, double upper_bound) {
+        double r_x = lower_bound + (upper_bound - lower_bound) * rand.nextDouble();
+        double r_y = lower_bound + (upper_bound - lower_bound) * rand.nextDouble();
+        double r_z = lower_bound + (upper_bound - lower_bound) * rand.nextDouble();
+        return new Vec3(r_x, r_y, r_z);
+    }
+
+    public static Vec3 randomInUnitSphere() {
+        while (true) {
+            Vec3 p = Vec3.random(-1, 1);
+            if (p.lenSquared() < 1) {
+                return p;
+            }
+        }
+    }
+
+    public static Vec3 randomUnitVector() {
+        return randomInUnitSphere().toUnit();
+    }
+
+    // if the random vector dotted with the normal <= 0, that means they face
+    // opposite directions, so invert it
+    public static Vec3 randomOnHemisphere(Vec3 normal) {
+        Vec3 on_unit_sphere = randomUnitVector();
+        if (Vec3.dot(on_unit_sphere, normal) > 0.0) {
+            return on_unit_sphere;
+        } else {
+            return Vec3.scalarMul(-1, on_unit_sphere);
+        }
     }
 
     public Vec3 toUnit() {

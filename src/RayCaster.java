@@ -15,7 +15,6 @@ public class RayCaster {
         setup_scene();
 
         Camera cam = new Camera();
-        cam.setImageWidth(1600);
 
         long start_time = System.currentTimeMillis();
         cam.renderScene(scene_objects);

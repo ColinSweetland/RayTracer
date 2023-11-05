@@ -2,7 +2,7 @@ public class Color extends Vec3 {
 
     public static Color RED = new Color(1.0, 0.0, 0.0);
     public static Color WHITE = new Color(1.0, 1.0, 1.0);
-    public static Color SKYBLUE = new Color(0.5, 0.7, 1.0);
+    public static Color SKYBLUE = new Color(0.4, 0.6, 1.0);
 
     // r, g, and b are from 0.0 (black) to 1.0, translated to 0-255 only when needed
     public Color(double r, double g, double b) {
@@ -37,11 +37,19 @@ public class Color extends Vec3 {
         return z();
     }
 
-    public static void write(Color c) {
-        int ir = (int) (255.999 * c.r());
-        int ig = (int) (255.999 * c.g());
-        int ib = (int) (255.999 * c.b());
+    private static double linear_to_gamma(double linear_component) {
+        return Math.pow(linear_component, 0.5);
+    }
 
-        System.out.format("%d %d %d\n", ir, ig, ib);
+    public static void write(Color c) {
+        double cr = linear_to_gamma(c.r());
+        double cg = linear_to_gamma(c.g());
+        double cb = linear_to_gamma(c.b());
+
+        cr = 255.9 * Math.max(0.0, Math.min(1.0, cr));
+        cg = 255.9 * Math.max(0.0, Math.min(1.0, cg));
+        cb = 255.9 * Math.max(0.0, Math.min(1.0, cb));
+
+        System.out.format("%d %d %d\n", (int) cr, (int) cg, (int) cb);
     }
 }
