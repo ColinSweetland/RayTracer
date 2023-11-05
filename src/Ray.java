@@ -2,8 +2,8 @@ public class Ray {
     private Vec3 origin;
     private Vec3 direction;
 
-    public static double max_ray_len = 4000.0;
-    public static double min_ray_len = 0.0;
+    public static final double MAX_RAY_LEN = 4000.0;
+    public static final double MIN_RAY_LEN = 0.001;
 
     public Ray(Vec3 origin, Vec3 direction) {
         this.origin = origin;

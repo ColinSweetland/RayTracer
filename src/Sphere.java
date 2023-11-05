@@ -16,11 +16,11 @@ public class Sphere implements Hittable {
     }
 
     @Override
-    public HitInfo isHitBy(Ray r) {
+    public HitInfo isHitBy(Ray ray) {
         // We are just using the quadratic equation.
-        Vec3 ray_origin_minus_pos = Vec3.sub(r.getOrigin(), getPosition());
-        double a = r.getDirection().lenSquared();
-        double half_b = Vec3.dot(ray_origin_minus_pos, r.getDirection());
+        Vec3 ray_origin_minus_pos = Vec3.sub(ray.getOrigin(), getPosition());
+        double a = ray.getDirection().lenSquared();
+        double half_b = Vec3.dot(ray_origin_minus_pos, ray.getDirection());
         double c = ray_origin_minus_pos.lenSquared() - (getRadius() * getRadius());
 
         double discriminant = half_b * half_b - a * c;
@@ -33,11 +33,15 @@ public class Sphere implements Hittable {
         } else {
             double point_along_ray = ((-half_b - Math.sqrt(discriminant)) / a);
 
-            if (point_along_ray < Ray.min_ray_len || point_along_ray > Ray.max_ray_len) {
+            if (point_along_ray < Ray.MIN_RAY_LEN || point_along_ray > Ray.MAX_RAY_LEN) {
                 return null;
             }
 
-            return new HitInfo(point_along_ray, Vec3.sub(r.at(point_along_ray), pos).toUnit());
+            Vec3 hit_normal = Vec3.scalarDiv(r, Vec3.sub(ray.at(point_along_ray), pos));
+            HitInfo hit_rec = new HitInfo(point_along_ray, hit_normal);
+            hit_rec.setFrontFace(ray);
+
+            return hit_rec;
         }
     }
 }
