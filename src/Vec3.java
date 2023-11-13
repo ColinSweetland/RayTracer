@@ -70,6 +70,11 @@ public class Vec3 {
         return lhs.e[0] * rhs.e[0] + lhs.e[1] * rhs.e[1] + lhs.e[2] * rhs.e[2];
     }
 
+    public boolean nearly_zero() {
+        double s = 0.00000001;
+        return Math.abs(x()) < s && Math.abs(y()) < s && Math.abs(z()) < s;
+    }
+
     public static Vec3 random() {
         return new Vec3(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
     }
@@ -103,6 +108,10 @@ public class Vec3 {
         } else {
             return Vec3.scalarMul(-1, on_unit_sphere);
         }
+    }
+
+    public Vec3 reflect(Vec3 n) {
+        return Vec3.sub(this, Vec3.scalarMul(2.0 * Vec3.dot(this, n), n));
     }
 
     public Vec3 toUnit() {

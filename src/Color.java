@@ -1,7 +1,10 @@
 public class Color extends Vec3 {
 
     public static Color RED = new Color(1.0, 0.0, 0.0);
+    public static Color YELLOW = new Color(0.8, 0.6, 0.2);
     public static Color WHITE = new Color(1.0, 1.0, 1.0);
+    public static Color GRAY = new Color(0.8, 0.8, 0.8);
+    public static Color BLACK = new Color(0.0, 0.0, 0.0);
     public static Color SKYBLUE = new Color(0.4, 0.6, 1.0);
 
     // r, g, and b are from 0.0 (black) to 1.0, translated to 0-255 only when needed

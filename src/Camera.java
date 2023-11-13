@@ -139,10 +139,15 @@ public class Camera {
             double lerp_amount = 0.5 * (unit.y() + 1.0);
             return Color.lerpBetween(Color.WHITE, Color.SKYBLUE, lerp_amount);
         } else {
-            Vec3 bounce_dir = Vec3.add(closest_hit.getHitNormal(), Vec3.randomUnitVector());
-            Vec3 collision_point = r.at(closest_hit.getHitPointAlongRay());
-            Color bounced_ray = castRay(new Ray(collision_point, bounce_dir), scene_objects, bounce_count + 1);
-            return Vec3.scalarMul(0.5, bounced_ray).toColor();
+            ScatterRecord sr = closest_hit.getHitMaterial().scatter(r, closest_hit);
+
+            // should scatter
+            if (sr != null) {
+                Color scatter_color = castRay(sr.getScatteredRay(), scene_objects, bounce_count - 1);
+                return Vec3.mul(sr.getAttenuation(), scatter_color).toColor();
+            } else {
+                return Color.BLACK;
+            }
         }
     }
 }

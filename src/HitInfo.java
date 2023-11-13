@@ -5,6 +5,8 @@ public class HitInfo {
     // does the normal point with the ray, or against it
     private boolean front_face;
 
+    private AbstractMaterial hit_material;
+
     public HitInfo(double point_along_ray, Vec3 hit_normal) {
         this.point_along_ray = point_along_ray;
         this.hit_normal = hit_normal;
@@ -18,8 +20,17 @@ public class HitInfo {
         return hit_normal;
     }
 
-    // hit_normal is assumed to already be set to the proper outward facing normal, at this point. 
-    // this function will flip it to face against the ray if it it faces with it. 
+    public AbstractMaterial getHitMaterial() {
+        return hit_material;
+    }
+
+    public void setHitMaterial(AbstractMaterial mat) {
+        hit_material = mat;
+    }
+
+    // hit_normal is assumed to already be set to the proper outward facing normal,
+    // at this point.
+    // this function will flip it to face against the ray if it it faces with it.
     public void setFrontFace(Ray ray) {
         front_face = Vec3.dot(ray.getDirection(), hit_normal) < 0;
         if (!front_face) {

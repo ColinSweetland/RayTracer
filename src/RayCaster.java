@@ -5,8 +5,13 @@ public class RayCaster {
     static ArrayList<Hittable> scene_objects = new ArrayList<Hittable>();
 
     public static void setup_scene() {
-        scene_objects.add(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5));
-        scene_objects.add(new Sphere(new Vec3(0.0, -100.5, -1), 100.0));
+        DiffuseMaterial ground = new DiffuseMaterial(new Color(0.1, 0.8, 0.2));
+        DiffuseMaterial center = new DiffuseMaterial(Color.RED);
+
+        scene_objects.add(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, center));
+        scene_objects.add(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, ground));
+        scene_objects.add(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, MetalMaterial.SILVER));
+        scene_objects.add(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, MetalMaterial.GOLD));
 
     }
 

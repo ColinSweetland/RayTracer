@@ -1,10 +1,12 @@
 public class Sphere implements Hittable {
     private Vec3 pos;
     private double r;
+    private AbstractMaterial material;
 
-    public Sphere(Vec3 position, double radius) {
+    public Sphere(Vec3 position, double radius, AbstractMaterial mat) {
         pos = position;
         r = radius;
+        material = mat;
     }
 
     public Vec3 getPosition() {
@@ -40,6 +42,7 @@ public class Sphere implements Hittable {
             Vec3 hit_normal = Vec3.scalarDiv(r, Vec3.sub(ray.at(point_along_ray), pos));
             HitInfo hit_rec = new HitInfo(point_along_ray, hit_normal);
             hit_rec.setFrontFace(ray);
+            hit_rec.setHitMaterial(material);
 
             return hit_rec;
         }
