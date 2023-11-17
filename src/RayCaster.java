@@ -10,8 +10,8 @@ public class RayCaster {
 
         scene_objects.add(new Sphere(new Vec3(0.0, 0.0, -1.0), 0.5, center));
         scene_objects.add(new Sphere(new Vec3(0.0, -100.5, -1.0), 100.0, ground));
-        scene_objects.add(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, MetalMaterial.SILVER));
-        scene_objects.add(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, MetalMaterial.GOLD));
+        scene_objects.add(new Sphere(new Vec3(1.0, 0.0, -1.0), 0.5, MetalMaterial.SILVER.setFuzziness(0.3)));
+        scene_objects.add(new Sphere(new Vec3(-1.0, 0.0, -1.0), 0.5, MetalMaterial.GOLD.setFuzziness(1.0)));
 
     }
 
